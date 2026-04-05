@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《刺殺騎士團長》 短影音解說</title>
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; background: #222; font-family: '微軟正黑體', sans-serif; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        #viewport {
+            width: 100vw; max-width: 500px; /* 9:16 approx for shorts */
+            height: 100%; max-height: 888px;
+            aspect-ratio: 9/16;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .scene {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0; transition: opacity 1.5s ease;
+        }
+
+        .ken-burns { animation: kenBurns 20s linear infinite alternate; }
+        .fast-zoom { animation: fastZoom 20s linear infinite forwards; }
+        
+        @keyframes kenBurns {
+            0% { transform: scale(1.0) translate(0, 0); }
+            100% { transform: scale(1.15) translate(-2%, 2%); }
+        }
+        @keyframes fastZoom {
+            0% { transform: scale(1.0); }
+            100% { transform: scale(1.3); }
+        }
+
+        /* Flashlight effect */
+        #flashlight-mask {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: radial-gradient(circle 100px at 50% 50%, transparent 10%, rgba(0,0,0,0.95) 80%);
+            z-index: 5; pointer-events: none; opacity: 0;
+            mix-blend-mode: multiply; transition: opacity 1s;
+        }
+
+        #subtitles {
+            position: absolute; bottom: 15%; width: 90%; left: 5%;
+            text-align: center; font-size: 20px; font-weight: bold; line-height: 1.4;
+            text-shadow: 2px 2px 5px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            z-index: 100; opacity: 1; transition: opacity 0.5s;
+        }
+
+        #big-text {
+            position: absolute; top: 35%; width: 100%; text-align: center;
+            font-size: 44px; font-weight: 900; color: #fff;
+            text-shadow: 3px 3px 10px rgba(255,0,0,0.8); letter-spacing: 5px;
+            z-index: 90; opacity: 0; font-family: '標楷體', serif;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-2px, -2px) rotate(-1deg); }
+            20%, 40%, 60%, 80% { transform: translate(2px, 2px) rotate(1deg); }
+        }
+        .shake { animation: shake 0.3s infinite; }
+
+        /* Start Overlay */
+        #start-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.85); z-index: 200;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .start-btn {
+            padding: 15px 40px; font-size: 22px; border-radius: 30px; border: none;
+            background: linear-gradient(45deg, #eee, #fff); color: #000; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5); transition: 0.3s; margin-top: 30px;
+        }
+        .start-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,255,255,0.8); }
+
+
+
+        /* Controls Panel */
+        #controls-container {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 300;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; backdrop-filter: blur(2px);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        #viewport:hover #controls-container { opacity: 1; }
+        
+        #controls-container button {
+            background: transparent; border: none; color: white; font-size: 24px;
+            cursor: pointer; padding: 0 5px; margin: 0; outline: none;
+        }
+        #controls-container button:hover { transform: scale(1.1); }
+        
+        .time-text { font-size: 13px; color: white; font-family: monospace; white-space: nowrap; }
+        
+        input[type=range] {
+            -webkit-appearance: none; background: transparent; width: 100%; margin: 0 10px; outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%;
+            background: #fff; cursor: pointer; margin-top: -5px; box-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.4);border-radius: 2px;
+        }
+        
+        #volume-container { display: flex; align-items: center; width: 80px; }
+        #volume-container input[type=range] { width: 100%; margin-left: 5px; margin-right: 0;}
+    </style>
+</head>
+<body>
+
+<div id="viewport">
+    <div class="scene ken-burns" id="scene1" style="background-image: url('assets/dark_attic_1775358132399.png');"></div>
+    <div id="flashlight-mask"></div>
+    
+    <div class="scene ken-burns" id="scene2" style="background-image: url('assets/lonely_mountain_house_1775358152049.png');"></div>
+    <div class="scene ken-burns" id="scene3" style="background-image: url('assets/commendatore_painting_1775358167725.png');"></div>
+    <div class="scene fast-zoom" id="scene4" style="background-image: url('assets/foggy_forest_shrine_1775358184768.png');"></div>
+    <div class="scene fast-zoom" id="scene5" style="background-image: url('assets/stone_chamber_1775358807407.png');"></div>
+
+    <div id="big-text">閣樓裡的秘密</div>
+    <div id="subtitles"></div>
+
+    <div id="controls-container">
+        <button id="play-pause-btn" onclick="togglePlay()">⏸️</button>
+        <span id="time-display" class="time-text">0:00</span>
+        <input type="range" id="time-slider" min="0" max="90" step="0.1" value="0" oninput="onScrubInput(this.value)" onchange="onScrubEnd(this.value)">
+        <span id="time-total" class="time-text">1:30</span>
+        <div id="volume-container">
+            <span style="font-size: 14px;">🔊</span>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1" oninput="changeVolume(this.value)">
+        </div>
+        <button id="fullscreen-btn" onclick="toggleFullScreen()" style="font-size: 18px; margin-left: 10px;" title="全螢幕">⛶</button>
+    </div>
+
+    <div id="start-overlay">
+        <h2>《刺殺騎士團長》</h2>
+        <p style="color: #bbb;">短影音解說預覽 (1分30秒)</p>
+        <button class="start-btn" onclick="startExperience()">▶️ 點擊觀看</button>
+    </div>
+</div>
+
+<script>
+    // Timeline setting
+    const timeline = [
+        { timecode: 0, scene: 'scene1', type: 'dark_attic' },
+        { timecode: 15, scene: 'scene2', type: 'lonely_house' },
+        { timecode: 35, scene: 'scene3', type: 'painting' },
+        { timecode: 55, scene: 'scene4', type: 'forest' },
+        { timecode: 75, scene: 'scene5', type: 'split' },
+        { timecode: 90, scene: null, type: 'end' }
+    ];
+
+    // Voice scripts mapped to timeline
+    const voicelines = [
+        { time: 0.0, text: "你有沒有想過，有些東西一旦被打開，\n你的現實世界就會開始崩塌？" },
+        { time: 16.0, text: "村上春樹在《刺殺騎士團長》裡，\n就寫了這樣一個故事。" },
+        { time: 21.0, text: "一個遭遇婚姻危機、失去人生方向的肖像畫家，獨自搬到了深山裡的老屋。" },
+        { time: 36.0, text: "在那裡，他偶然在閣樓發現了一幅被封印的畫作......" },
+        { time: 42.0, text: "《刺殺騎士團長》。" },
+        { time: 45.0, text: "這不是一幅普通的畫，它像是某種『開關』。" },
+        { time: 56.0, text: "從他打開這幅畫的那天起，\n深夜的樹林裡開始傳來神秘的鈴聲。" },
+        { time: 64.0, text: "那不是風聲，而是來自地底深處，\n彷彿有人在呼救的聲音。" },
+        { time: 76.0, text: "為了解開鈴聲的謎團，他挖開了地底的石室。" },
+        { time: 82.0, text: "但他不知道的是，他挖開的，\n其實是自己內心深處最不願面對的......" },
+        { time: 88.0, text: "『隱喻』。" }
+    ];
+
+    let audioCtx;
+    let masterGainNode;
+    let masterVolume = 1.0;
+    
+    let playing = false;
+    let internalTime = 0;
+    let lastTick = 0;
+    let isScrubbing = false;
+    let currentSceneIndex = -1;
+    let currentVoiceIndex = 0;
+
+    let activeNodes = [];
+    let highFreqTimer;
+    let flashlightTimer;
+
+    function startExperience() {
+        document.getElementById('start-overlay').style.display = 'none';
+        
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGainNode = audioCtx.createGain();
+        masterGainNode.connect(audioCtx.destination);
+        masterGainNode.gain.value = masterVolume;
+
+        playing = true;
+        lastTick = performance.now();
+
+        syncSceneToTime(internalTime);
+        syncAudioToTime(internalTime);
+        syncVoiceoversToTime(internalTime);
+        
+        if (internalTime < 1) {
+            currentVoiceIndex = 1;
+            showSubtitle(voicelines[0].text);
+            speakLine(voicelines[0].text);
+        }
+
+        animateFlashlight();
+        requestAnimationFrame(loop);
+    }
+
+    function loop() {
+        let now = performance.now();
+        let dt = (now - lastTick) / 1000;
+        lastTick = now;
+
+        if (playing) {
+            internalTime += dt;
+            if(internalTime >= 90) {
+                internalTime = 90;
+                pauseVideo(); // auto pause at end
+            }
+            if(!isScrubbing) {
+                updateUI();
+                checkTimeline(internalTime);
+                checkVoiceovers(internalTime);
+            }
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    // Controls Logic
+    function togglePlay() {
+        if (!audioCtx) { startExperience(); return; }
+        if (playing) pauseVideo();
+        else playVideo();
+    }
+
+    function pauseVideo() {
+        playing = false;
+        document.getElementById('play-pause-btn').innerText = "▶️";
+        if(audioCtx) audioCtx.suspend();
+        window.speechSynthesis.pause();
+    }
+
+    function playVideo() {
+        if (internalTime >= 90) scrubTo(0); // restart if at end
+        
+        playing = true;
+        lastTick = performance.now();
+        document.getElementById('play-pause-btn').innerText = "⏸️";
+        if(audioCtx) audioCtx.resume();
+        window.speechSynthesis.resume();
+    }
+
+    function updateUI() {
+        document.getElementById('time-slider').value = internalTime;
+        document.getElementById('time-display').innerText = formatTime(internalTime);
+    }
+
+    function formatTime(sec) {
+        let m = Math.floor(sec / 60);
+        let s = Math.floor(sec % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
+    function changeVolume(val) {
+        masterVolume = parseFloat(val);
+        if(masterGainNode) {
+            masterGainNode.gain.setTargetAtTime(masterVolume, audioCtx.currentTime, 0.1);
+        }
+    }
+
+    function toggleFullScreen() {
+        let elem = document.getElementById("viewport");
+        if (!document.fullscreenElement) {
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+            else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if (document.msExitFullscreen) document.msExitFullscreen();
+        }
+    }
+
+    function onScrubInput(val) {
+        isScrubbing = true;
+        internalTime = parseFloat(val);
+        document.getElementById('time-display').innerText = formatTime(internalTime);
+    }
+
+    function onScrubEnd(val) {
+        isScrubbing = false;
+        scrubTo(parseFloat(val));
+    }
+
+    function scrubTo(time) {
+        internalTime = time;
+        if(playing) lastTick = performance.now();
+        updateUI();
+        
+        window.speechSynthesis.cancel();
+        document.getElementById('subtitles').style.opacity = '0';
+        
+        syncSceneToTime(time);
+        syncAudioToTime(time);
+        syncVoiceoversToTime(time);
+        
+        // See if we should resume a running voiceover
+        let prevLine = -1;
+        for(let i=0; i<voicelines.length; i++) {
+            if(voicelines[i].time <= time) prevLine = i;
+            else break;
+        }
+        if(prevLine >= 0 && time - voicelines[prevLine].time < 5) {
+            currentVoiceIndex = prevLine + 1;
+            showSubtitle(voicelines[prevLine].text);
+            speakLine(voicelines[prevLine].text);
+        }
+    }
+
+    // Video Engine syncing
+    function syncSceneToTime(time) {
+        currentSceneIndex = 0;
+        for(let i=0; i<timeline.length-1; i++) {
+            if(time >= timeline[i].timecode && time < timeline[i+1].timecode) {
+                currentSceneIndex = i; break;
+            } else if (time >= timeline[timeline.length - 2].timecode) {
+                currentSceneIndex = timeline.length - 2;
+            }
+        }
+        forceScene(timeline[currentSceneIndex]);
+    }
+
+    function forceScene(item) {
+        if(!item) return;
+        document.querySelectorAll('.scene').forEach(el => el.style.opacity = '0');
+        if(item.scene) document.getElementById(item.scene).style.opacity = '1';
+        
+        document.getElementById('flashlight-mask').style.opacity = (item.type === 'dark_attic') ? '1' : '0';
+    }
+
+    function checkTimeline(elapsed) {
+        if(currentSceneIndex + 1 < timeline.length) {
+            let next = timeline[currentSceneIndex + 1];
+            if(elapsed >= next.timecode) {
+                currentSceneIndex++;
+                forceScene(next);
+                if(next.type === 'painting') {
+                    let bt = document.getElementById('big-text');
+                    bt.style.opacity = '1'; bt.classList.add('shake');
+                    
+                    let tearSd = audioCtx.createOscillator(); 
+                    tearSd.type = 'sawtooth'; tearSd.frequency.value = 1500;
+                    let tearGain = audioCtx.createGain(); 
+                    tearGain.gain.setValueAtTime(0.2, audioCtx.currentTime); tearGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+                    tearSd.connect(tearGain); tearGain.connect(masterGainNode); tearSd.start(); tearSd.stop(audioCtx.currentTime+1);
+                    
+                    setTimeout(() => { bt.style.opacity = '0'; bt.classList.remove('shake'); }, 3000);
+                }
+            }
+        }
+    }
+
+    // Audio & TTS engine
+    function trackNode(node) {
+        activeNodes.push(node);
+        node.onended = () => {
+            let i = activeNodes.indexOf(node);
+            if(i > -1) activeNodes.splice(i, 1);
+        };
+    }
+
+    function stopAllAudio() {
+        activeNodes.forEach(n => { try { n.stop(); } catch(e){} });
+        activeNodes = [];
+        clearInterval(highFreqTimer);
+    }
+
+    function syncAudioToTime(time) {
+        stopAllAudio();
+        if(time >= 0 && time < 15) playCello();
+        if(time >= 15 && time < 55) playRain();
+        if(time >= 55 && time < 75) startBell();
+        if(time >= 75 && time < 90) playSuspense();
+    }
+
+    function checkVoiceovers(elapsed) {
+        if(currentVoiceIndex < voicelines.length) {
+            if(elapsed >= voicelines[currentVoiceIndex].time) {
+                showSubtitle(voicelines[currentVoiceIndex].text);
+                speakLine(voicelines[currentVoiceIndex].text);
+                currentVoiceIndex++;
+            }
+        }
+    }
+
+    function syncVoiceoversToTime(time) {
+        currentVoiceIndex = voicelines.length;
+        for(let i=0; i<voicelines.length; i++) {
+            if(voicelines[i].time >= time) {
+                currentVoiceIndex = i;
+                break;
+            }
+        }
+    }
+
+    function showSubtitle(text) {
+        let sub = document.getElementById('subtitles');
+        sub.style.opacity = '0';
+        setTimeout(() => { sub.innerText = text; sub.style.opacity = '1'; }, 200);
+    }
+
+    let maleVoice = null;
+    function initVoice() {
+        let voices = window.speechSynthesis.getVoices();
+        maleVoice = voices.find(v => 
+            v.lang.includes('zh') && 
+            (v.name.includes('Zhiwei') || v.name.includes('Yun') || v.name.includes('男') || v.name.includes('Male'))
+        );
+        if(!maleVoice) maleVoice = voices.find(v => v.lang.includes('zh-TW'));
+    }
+    if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = initVoice;
+    }
+
+    function speakLine(text) {
+        if(!text) return;
+        if (!maleVoice) initVoice();
+
+        let msg = new SpeechSynthesisUtterance(text);
+        if (maleVoice) msg.voice = maleVoice;
+
+        msg.lang = 'zh-TW'; msg.rate = 1.0; msg.pitch = 0.6; msg.volume = masterVolume;
+        if(text.includes('刺殺騎士團長') || text.includes('隱喻')) {
+            msg.rate = 0.85; msg.pitch = 0.5;
+        }
+        window.speechSynthesis.speak(msg);
+    }
+
+    function playCello() {
+        if(!audioCtx) return;
+        let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(65, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 3);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 8);
+        osc.connect(gain); gain.connect(masterGainNode); osc.start(); trackNode(osc);
+    }
+
+    function playRain() {
+        let bufferSize = audioCtx.sampleRate * 2; 
+        let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        let output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+        let rainOscL = audioCtx.createBufferSource();
+        rainOscL.buffer = buffer; rainOscL.loop = true;
+        let filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 800;
+        let rGain = audioCtx.createGain(); rGain.gain.setValueAtTime(0, audioCtx.currentTime); 
+        rGain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 2);
+        rGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 8);
+        rainOscL.connect(filter); filter.connect(rGain); rGain.connect(masterGainNode); rainOscL.start(); trackNode(rainOscL);
+    }
+
+    function startBell() {
+        highFreqTimer = setInterval(() => {
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.frequency.value = 1046; osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
+            osc.connect(gain); gain.connect(masterGainNode); osc.start(); trackNode(osc);
+        }, 2000);
+    }
+
+    function playSuspense() {
+        let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain(); let gain2 = audioCtx.createGain();
+        osc.type = 'square'; osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 14);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 3);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 10);
+        osc.connect(gain); gain.connect(gain2); gain2.connect(masterGainNode); osc.start(); trackNode(osc);
+    }
+
+    function animateFlashlight() {
+        let mask = document.getElementById('flashlight-mask');
+        let t = 0;
+        clearInterval(flashlightTimer);
+        flashlightTimer = setInterval(() => {
+            if(!playing) return;
+            t += 0.05;
+            let x = 50 + Math.sin(t) * 30; let y = 50 + Math.cos(t * 0.8) * 30;
+            mask.style.background = `radial-gradient(circle 120px at ${x}% ${y}%, transparent 10%, rgba(0,0,0,0.95) 80%)`;
+        }, 30);
+    }
+</script>
+</body>
+</html>
