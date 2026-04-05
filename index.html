@@ -86,9 +86,13 @@
             background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 300;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 15px; box-sizing: border-box; backdrop-filter: blur(2px);
-            opacity: 0; transition: opacity 0.3s;
+            opacity: 1; transition: opacity 0.3s;
         }
-        #viewport:hover #controls-container { opacity: 1; }
+
+        #click-shield {
+            position: absolute; top: 0; left: 0; width: 100%; height: calc(100% - 60px);
+            z-index: 250; cursor: pointer;
+        }
         
         #controls-container button {
             background: transparent; border: none; color: white; font-size: 24px;
@@ -126,9 +130,10 @@
 
     <div id="big-text">閣樓裡的秘密</div>
     <div id="subtitles"></div>
+    <div id="click-shield" onclick="togglePlay()"></div>
 
     <div id="controls-container">
-        <button id="play-pause-btn" onclick="togglePlay()">⏸️</button>
+        <button id="play-pause-btn" onclick="togglePlay()" ontouchstart="event.preventDefault(); togglePlay();">⏸️</button>
         <span id="time-display" class="time-text">0:00</span>
         <input type="range" id="time-slider" min="0" max="90" step="0.1" value="0" oninput="onScrubInput(this.value)" onchange="onScrubEnd(this.value)">
         <span id="time-total" class="time-text">1:30</span>
@@ -210,6 +215,20 @@
 
         animateFlashlight();
         requestAnimationFrame(loop);
+
+        document.getElementById('viewport').addEventListener('mousemove', resetControlsTimer);
+        document.getElementById('viewport').addEventListener('touchstart', resetControlsTimer, {passive: true});
+        resetControlsTimer();
+    }
+
+    let hideControlsTimer;
+    function resetControlsTimer() {
+        let ctrl = document.getElementById('controls-container');
+        ctrl.style.opacity = '1';
+        clearTimeout(hideControlsTimer);
+        if (playing) {
+            hideControlsTimer = setTimeout(() => { ctrl.style.opacity = '0'; }, 3000);
+        }
     }
 
     function loop() {
@@ -245,6 +264,7 @@
         document.getElementById('play-pause-btn').innerText = "▶️";
         if(audioCtx) audioCtx.suspend();
         window.speechSynthesis.pause();
+        resetControlsTimer();
     }
 
     function playVideo() {
@@ -255,6 +275,7 @@
         document.getElementById('play-pause-btn').innerText = "⏸️";
         if(audioCtx) audioCtx.resume();
         window.speechSynthesis.resume();
+        resetControlsTimer();
     }
 
     function updateUI() {
