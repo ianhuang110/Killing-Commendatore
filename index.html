@@ -67,7 +67,7 @@
         /* Start Overlay */
         #start-overlay {
             position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.85); z-index: 200;
+            background: rgba(0,0,0,0.85); z-index: 1000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
         }
@@ -147,7 +147,7 @@
     <div id="start-overlay">
         <h2>《刺殺騎士團長》</h2>
         <p style="color: #bbb;">短影音解說預覽 (1分30秒)</p>
-        <button class="start-btn" onclick="startExperience()">▶️ 點擊觀看</button>
+        <button class="start-btn" onclick="startExperience()" ontouchstart="event.preventDefault(); startExperience();">▶️ 點擊觀看</button>
     </div>
 </div>
 
@@ -196,6 +196,7 @@
         document.getElementById('start-overlay').style.display = 'none';
         
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx.resume(); // iOS Safari requires immediate resume
         masterGainNode = audioCtx.createGain();
         masterGainNode.connect(audioCtx.destination);
         masterGainNode.gain.value = masterVolume;
